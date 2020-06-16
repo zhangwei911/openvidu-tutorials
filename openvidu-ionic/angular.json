@@ -166,7 +166,8 @@
     }
   },
   "cli": {
-    "defaultCollection": "@ionic/schematics-angular"
+    "defaultCollection": "@ionic/schematics-angular",
+    "analytics": "1a45ed75-9d48-4098-b30f-fea72a2490e9"
   },
   "schematics": {
     "@ionic/schematics-angular:component": {

@@ -36,11 +36,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.openvidu.openvidu_android.R;
 import io.openvidu.openvidu_android.fragments.PermissionsDialogFragment;
-import io.openvidu.openvidu_android.openvidu.LocalParticipant;
-import io.openvidu.openvidu_android.openvidu.RemoteParticipant;
-import io.openvidu.openvidu_android.openvidu.Session;
+import viz.commonlib.openvidu.LocalParticipant;
+import viz.commonlib.openvidu.RemoteParticipant;
+import viz.commonlib.openvidu.Session;
 import io.openvidu.openvidu_android.utils.CustomHttpClient;
-import io.openvidu.openvidu_android.websocket.CustomWebSocket;
+import viz.commonlib.openvidu.websocket.CustomWebSocket;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -190,7 +190,10 @@ public class SessionActivity extends AppCompatActivity {
 
     private void getTokenSuccess(String token, String sessionId) {
         // Initialize our session
-        session = new Session(sessionId, token, views_container, this);
+        session = new Session(sessionId, token, views_container, this, remoteMediaStreamBean -> {
+            setRemoteMediaStream(remoteMediaStreamBean.getMediaStream(), remoteMediaStreamBean.getRemoteParticipant());
+            return null;
+        });
 
         // Initialize our local participant and start local camera
         String participantName = participant_name.getText().toString();
@@ -208,6 +211,22 @@ public class SessionActivity extends AppCompatActivity {
 
     private void startWebSocket() {
         CustomWebSocket webSocket = new CustomWebSocket(session, OPENVIDU_URL, this);
+        webSocket.setCustomWebSocketListener(new CustomWebSocket.CustomWebSocketListener() {
+            @Override
+            public void callViewToConnectedState() {
+                viewToConnectedState();
+            }
+
+            @Override
+            public void callCreateRemoteParticipantVideo(RemoteParticipant remoteParticipant) {
+                createRemoteParticipantVideo(remoteParticipant);
+            }
+
+            @Override
+            public void callLeaveSession() {
+                leaveSession();
+            }
+        });
         webSocket.execute();
         session.setWebSocket(webSocket);
     }

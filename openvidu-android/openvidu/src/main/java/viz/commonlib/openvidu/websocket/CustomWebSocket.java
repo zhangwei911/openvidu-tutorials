@@ -1,17 +1,11 @@
-package io.openvidu.openvidu_android.websocket;
+package viz.commonlib.openvidu.websocket;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
-import io.openvidu.openvidu_android.activities.SessionActivity;
-import io.openvidu.openvidu_android.constants.JsonConstants;
-import io.openvidu.openvidu_android.observers.CustomSdpObserver;
-import io.openvidu.openvidu_android.openvidu.LocalParticipant;
-import io.openvidu.openvidu_android.openvidu.Participant;
-import io.openvidu.openvidu_android.openvidu.RemoteParticipant;
-import io.openvidu.openvidu_android.openvidu.Session;
 import com.neovisionaries.ws.client.ThreadType;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -51,7 +45,14 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public class CustomWebSocket extends AsyncTask<SessionActivity, Void, Void> implements WebSocketListener {
+import viz.commonlib.openvidu.JsonConstants;
+import viz.commonlib.openvidu.LocalParticipant;
+import viz.commonlib.openvidu.Participant;
+import viz.commonlib.openvidu.RemoteParticipant;
+import viz.commonlib.openvidu.Session;
+import viz.commonlib.openvidu.observers.CustomSdpObserver;
+
+public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebSocketListener {
 
     private final String TAG = "CustomWebSocketListener";
     private final int PING_MESSAGE_INTERVAL = 5;
@@ -80,14 +81,27 @@ public class CustomWebSocket extends AsyncTask<SessionActivity, Void, Void> impl
     private Set<Integer> IDS_ONICECANDIDATE = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private Session session;
     private String openviduUrl;
-    private SessionActivity activity;
+    private Context context;
     private WebSocket websocket;
     private boolean websocketCancelled = false;
+    private CustomWebSocketListener customWebSocketListener = null;
 
-    public CustomWebSocket(Session session, String openviduUrl, SessionActivity activity) {
+    public CustomWebSocket(Session session, String openviduUrl, Context context) {
         this.session = session;
         this.openviduUrl = openviduUrl;
-        this.activity = activity;
+        this.context = context;
+    }
+
+    public interface CustomWebSocketListener {
+        void callViewToConnectedState();
+
+        void callCreateRemoteParticipantVideo(RemoteParticipant remoteParticipant);
+
+        void callLeaveSession();
+    }
+
+    public void setCustomWebSocketListener(CustomWebSocketListener customWebSocketListener) {
+        this.customWebSocketListener = customWebSocketListener;
     }
 
     @Override
@@ -112,7 +126,9 @@ public class CustomWebSocket extends AsyncTask<SessionActivity, Void, Void> impl
 
         } else if (rpcId == this.ID_JOINROOM.get()) {
             // Response to joinRoom
-            activity.viewToConnectedState();
+            if (customWebSocketListener != null) {
+                customWebSocketListener.callViewToConnectedState();
+            }
 
             final LocalParticipant localParticipant = this.session.getLocalParticipant();
             final String localConnectionId = result.getString(JsonConstants.ID);
@@ -309,7 +325,7 @@ public class CustomWebSocket extends AsyncTask<SessionActivity, Void, Void> impl
     private void participantLeftEvent(JSONObject params) throws JSONException {
         final RemoteParticipant remoteParticipant = this.session.removeRemoteParticipant(params.getString("connectionId"));
         remoteParticipant.dispose();
-        Handler mainHandler = new Handler(activity.getMainLooper());
+        Handler mainHandler = new Handler(context.getMainLooper());
         Runnable myRunnable = () -> session.removeView(remoteParticipant.getView());
         mainHandler.post(myRunnable);
     }
@@ -318,7 +334,9 @@ public class CustomWebSocket extends AsyncTask<SessionActivity, Void, Void> impl
         final String connectionId = participantJson.getString(JsonConstants.ID);
         final String participantName = new JSONObject(participantJson.getString(JsonConstants.METADATA)).getString("clientData");
         final RemoteParticipant remoteParticipant = new RemoteParticipant(connectionId, participantName, this.session);
-        this.activity.createRemoteParticipantVideo(remoteParticipant);
+        if (customWebSocketListener != null) {
+            customWebSocketListener.callCreateRemoteParticipantVideo(remoteParticipant);
+        }
         this.session.createRemotePeerConnection(remoteParticipant.getConnectionId());
         return remoteParticipant;
     }
@@ -527,7 +545,7 @@ public class CustomWebSocket extends AsyncTask<SessionActivity, Void, Void> impl
     }
 
     @Override
-    protected Void doInBackground(SessionActivity... sessionActivities) {
+    protected Void doInBackground(Void... voids) {
         try {
             WebSocketFactory factory = new WebSocketFactory();
             SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -539,11 +557,13 @@ public class CustomWebSocket extends AsyncTask<SessionActivity, Void, Void> impl
             websocket.connect();
         } catch (KeyManagementException | NoSuchAlgorithmException | IOException | WebSocketException e) {
             Log.e("WebSocket error", e.getMessage());
-            Handler mainHandler = new Handler(activity.getMainLooper());
+            Handler mainHandler = new Handler(context.getMainLooper());
             Runnable myRunnable = () -> {
-                Toast toast = Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG);
                 toast.show();
-                activity.leaveSession();
+                if (customWebSocketListener != null) {
+                    customWebSocketListener.callLeaveSession();
+                }
             };
             mainHandler.post(myRunnable);
             websocketCancelled = true;

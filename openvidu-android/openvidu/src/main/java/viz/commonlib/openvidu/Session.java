@@ -1,13 +1,11 @@
-package io.openvidu.openvidu_android.openvidu;
+package viz.commonlib.openvidu;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import io.openvidu.openvidu_android.activities.SessionActivity;
-import io.openvidu.openvidu_android.observers.CustomPeerConnectionObserver;
-import io.openvidu.openvidu_android.observers.CustomSdpObserver;
-import io.openvidu.openvidu_android.websocket.CustomWebSocket;
+import androidx.arch.core.util.Function;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
@@ -26,7 +24,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Session {
+import viz.commonlib.openvidu.observers.CustomPeerConnectionObserver;
+import viz.commonlib.openvidu.observers.CustomSdpObserver;
+import viz.commonlib.openvidu.websocket.CustomWebSocket;
+
+public class Session{
 
     private LocalParticipant localParticipant;
     private Map<String, RemoteParticipant> remoteParticipants = new HashMap<>();
@@ -35,15 +37,17 @@ public class Session {
     private LinearLayout views_container;
     private PeerConnectionFactory peerConnectionFactory;
     private CustomWebSocket websocket;
-    private SessionActivity activity;
+    private Context context;
+    private Function<RemoteMediaStreamBean,Void> setRemoteMediaStream;
 
-    public Session(String id, String token, LinearLayout views_container, SessionActivity activity) {
+    public Session(String id, String token, LinearLayout views_container, Context context, Function<RemoteMediaStreamBean,Void> setRemoteMediaStream) {
         this.id = id;
         this.token = token;
         this.views_container = views_container;
-        this.activity = activity;
+        this.context = context;
+        this.setRemoteMediaStream = setRemoteMediaStream;
 
-        PeerConnectionFactory.InitializationOptions.Builder optionsBuilder = PeerConnectionFactory.InitializationOptions.builder(activity.getApplicationContext());
+        PeerConnectionFactory.InitializationOptions.Builder optionsBuilder = PeerConnectionFactory.InitializationOptions.builder(context.getApplicationContext());
         optionsBuilder.setEnableInternalTracer(true);
         PeerConnectionFactory.InitializationOptions opt = optionsBuilder.createInitializationOptions();
         PeerConnectionFactory.initialize(opt);
@@ -96,7 +100,9 @@ public class Session {
             @Override
             public void onAddStream(MediaStream mediaStream) {
                 super.onAddStream(mediaStream);
-                activity.setRemoteMediaStream(mediaStream, remoteParticipants.get(connectionId));
+                if(setRemoteMediaStream !=null) {
+                    setRemoteMediaStream.apply(new RemoteMediaStreamBean(mediaStream,remoteParticipants.get(connectionId)));
+                }
             }
 
             @Override

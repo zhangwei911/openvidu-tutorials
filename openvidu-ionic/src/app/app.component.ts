@@ -16,8 +16,9 @@ declare var cordova;
 })
 export class AppComponent implements OnDestroy {
 
-    OPENVIDU_SERVER_URL = 'https://' + location.hostname + ':4443';
-    OPENVIDU_SERVER_SECRET = 'MY_SECRET';
+    // OPENVIDU_SERVER_URL = 'https://' + location.hostname + ':4443';
+    OPENVIDU_SERVER_URL = 'https://' + '192.168.31.103' + ':4443';
+    OPENVIDU_SERVER_SECRET = 'hsx122096';
 
     ANDROID_PERMISSIONS = [
         this.androidPermissions.PERMISSION.CAMERA,
@@ -248,13 +249,13 @@ export class AppComponent implements OnDestroy {
                 {
                     name: 'url',
                     type: 'text',
-                    value: 'https://demos.openvidu.io:4443/',
+                    value: 'https://192.168.31.103:4443/',
                     placeholder: 'URL'
                 },
                 {
                     name: 'secret',
                     type: 'text',
-                    value: 'MY_SECRET',
+                    value: 'hsx122096',
                     placeholder: 'Secret'
                 }
             ],
@@ -289,9 +290,9 @@ export class AppComponent implements OnDestroy {
      */
 
     getToken(): Promise<string> {
-        if (this.platform.is('ios') && this.platform.is('cordova') && this.OPENVIDU_SERVER_URL === 'https://localhost:4443') {
+        if (this.platform.is('ios') && this.platform.is('cordova') && this.OPENVIDU_SERVER_URL === 'https://192.168.31.103:4443') {
             // To make easier first steps with iOS apps, use demos OpenVidu Sever if no custom valid server is configured
-            this.OPENVIDU_SERVER_URL = 'https://demos.openvidu.io:4443';
+            this.OPENVIDU_SERVER_URL = 'https://192.168.31.103:4443';
         }
         return this.createSession(this.mySessionId).then((sessionId) => {
             return this.createToken(sessionId);
