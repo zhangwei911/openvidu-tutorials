@@ -1,0 +1,20 @@
+def versionPropsFile = file('maven-info.properties')
+def Properties mavenInfoProps
+String publishGroupId = 'viz.commonlib'
+String publishArtifactId = 'openvidu'
+String publishVersion = '1.0.0'
+if (versionPropsFile.canRead()) {
+    mavenInfoProps = new Properties()
+
+    mavenInfoProps.load(new FileInputStream(versionPropsFile))
+
+    publishGroupId = mavenInfoProps['PUBLISH_GROUP_ID']
+    publishArtifactId = mavenInfoProps['PUBLISH_ARTIFACT_ID']
+    publishVersion = mavenInfoProps['PUBLISH_VERSION']
+}
+// 2.maven-信息
+ext {// ext is a gradle closure allowing the declaration of global properties
+    PUBLISH_GROUP_ID = publishGroupId
+    PUBLISH_ARTIFACT_ID = publishArtifactId
+    PUBLISH_VERSION = publishVersion
+}

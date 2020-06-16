@@ -1,0 +1,97 @@
+// 1.maven-插件
+apply plugin: 'maven'
+apply from: 'maven-info.gradle'
+// 3.maven-路径
+uploadArchives {
+    repositories.mavenDeployer {
+        String env = getAndroidSdkDir()
+        if (env == null) {
+            println("don't have env: android_home ,please set...")
+            if (env == null) {
+                throw new RuntimeException(
+                        "Unable to determine Android SDK directory.")
+            }
+        }
+
+        def deployPath = file(env + "/extras/android/m2repository/")
+        String repository_url = "file://${deployPath.absolutePath}"
+        println(repository_url)
+
+        repository(url: repository_url)
+
+        pom.project {
+            groupId project.PUBLISH_GROUP_ID
+            artifactId project.PUBLISH_ARTIFACT_ID
+            version project.PUBLISH_VERSION
+        }
+        println("upload:" + project.PUBLISH_GROUP_ID + ":" + project.PUBLISH_ARTIFACT_ID + ":" + project.PUBLISH_VERSION)
+    }
+}
+
+// get android sdk dir
+String getAndroidSdkDir() {
+    def rootDir = project.rootDir
+    def androidSdkDir = null
+    String envVar = System.getenv("ANDROID_HOME")
+    def localProperties = new File(rootDir, 'local.properties')
+    String systemProperty = System.getProperty("android.home")
+    if (envVar != null) {
+        androidSdkDir = envVar
+    } else if (localProperties.exists()) {
+        Properties properties = new Properties()
+        localProperties.withInputStream { instr ->
+            properties.load(instr)
+        }
+        def sdkDirProp = properties.getProperty('sdk.dir')
+        if (sdkDirProp != null) {
+            androidSdkDir = sdkDirProp
+        } else {
+            sdkDirProp = properties.getProperty('android.dir')
+            if (sdkDirProp != null) {
+                androidSdkDir = (new File(rootDir, sdkDirProp)).getAbsolutePath()
+            }
+        }
+    }
+    if (androidSdkDir == null && systemProperty != null) {
+        androidSdkDir = systemProperty
+    }
+    if (androidSdkDir == null) {
+        throw new RuntimeException(
+                "Unable to determine Android SDK directory.")
+    }
+    androidSdkDir
+}
+
+if (project.hasProperty("android")) { // Android libraries
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    task javadoc(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+} else { // Java libraries
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+}
+
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+
+artifacts {
+//    archives javadocJar
+    archives sourcesJar
+}
+
+//解决 JavaDoc 中文注释生成失败的问题
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+}
