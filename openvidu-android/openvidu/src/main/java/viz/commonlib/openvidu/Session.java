@@ -3,6 +3,7 @@ package viz.commonlib.openvidu;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.arch.core.util.Function;
@@ -34,13 +35,13 @@ public class Session{
     private Map<String, RemoteParticipant> remoteParticipants = new HashMap<>();
     private String id;
     private String token;
-    private LinearLayout views_container;
+    private ViewGroup views_container;
     private PeerConnectionFactory peerConnectionFactory;
     private CustomWebSocket websocket;
     private Context context;
     private Function<RemoteMediaStreamBean,Void> setRemoteMediaStream;
 
-    public Session(String id, String token, LinearLayout views_container, Context context, Function<RemoteMediaStreamBean,Void> setRemoteMediaStream) {
+    public Session(String id, String token, ViewGroup views_container, Context context, Function<RemoteMediaStreamBean,Void> setRemoteMediaStream) {
         this.id = id;
         this.token = token;
         this.views_container = views_container;

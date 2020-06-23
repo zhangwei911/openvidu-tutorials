@@ -86,6 +86,15 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
     private WebSocket websocket;
     private boolean websocketCancelled = false;
     private CustomWebSocketListener customWebSocketListener = null;
+    private boolean skipScreen = true;
+
+    public boolean isSkipScreen() {
+        return skipScreen;
+    }
+
+    public void setSkipScreen(boolean skipScreen) {
+        this.skipScreen = skipScreen;
+    }
 
     public CustomWebSocket(Session session, String openviduUrl, Context context) {
         this.session = session;
@@ -301,6 +310,13 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
             JSONException {
         for (int i = 0; i < result.getJSONArray(JsonConstants.VALUE).length(); i++) {
             JSONObject participantJson = result.getJSONArray(JsonConstants.VALUE).getJSONObject(i);
+            if (skipScreen) {
+                JSONObject metadataJson = new JSONObject(participantJson.getString("metadata"));
+                String clientData = metadataJson.getString("clientData");
+                if (clientData.endsWith("_SCREEN")) {
+                    continue;
+                }
+            }
             RemoteParticipant remoteParticipant = this.newRemoteParticipantAux(participantJson);
             JSONArray streams = participantJson.getJSONArray("streams");
             for (int j = 0; j < streams.length(); j++) {
