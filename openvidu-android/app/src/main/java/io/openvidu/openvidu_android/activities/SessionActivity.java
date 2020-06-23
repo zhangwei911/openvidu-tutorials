@@ -239,7 +239,12 @@ public class SessionActivity extends AppCompatActivity {
             @Override
             public void onMessage(Message message) {
                 Log.i(TAG, message.toString());
-                Toast.makeText(SessionActivity.this, String.format("收到消息:&s 来自:%s",message.getMessage(),message.getNickname()), Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(SessionActivity.this, String.format("收到消息:%s 来自:%s",message.getMessage(),message.getNickname()), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
         webSocket.execute();
