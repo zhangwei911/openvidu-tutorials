@@ -269,7 +269,9 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
                         message.setNickname(jsonObjectData.getString("nickname"));
                         message.setType(jsonObjectParam.getString("type"));
                         message.setFrom(jsonObjectParam.getString("from"));
-                        customWebSocketListener.onMessage(message);
+                        if (customWebSocketListener != null) {
+                            customWebSocketListener.onMessage(message);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
