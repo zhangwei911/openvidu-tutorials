@@ -37,6 +37,7 @@ import butterknife.ButterKnife;
 import io.openvidu.openvidu_android.R;
 import io.openvidu.openvidu_android.fragments.PermissionsDialogFragment;
 import viz.commonlib.openvidu.LocalParticipant;
+import viz.commonlib.openvidu.Message;
 import viz.commonlib.openvidu.RemoteParticipant;
 import viz.commonlib.openvidu.Session;
 import io.openvidu.openvidu_android.utils.CustomHttpClient;
@@ -225,6 +226,11 @@ public class SessionActivity extends AppCompatActivity {
             @Override
             public void callLeaveSession() {
                 leaveSession();
+            }
+
+            @Override
+            public void onMessage(Message message) {
+                Log.i(TAG,message.toString());
             }
         });
         webSocket.execute();

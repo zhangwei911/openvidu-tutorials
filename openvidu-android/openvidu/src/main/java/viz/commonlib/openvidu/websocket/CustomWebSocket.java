@@ -47,6 +47,7 @@ import javax.net.ssl.X509TrustManager;
 
 import viz.commonlib.openvidu.JsonConstants;
 import viz.commonlib.openvidu.LocalParticipant;
+import viz.commonlib.openvidu.Message;
 import viz.commonlib.openvidu.Participant;
 import viz.commonlib.openvidu.RemoteParticipant;
 import viz.commonlib.openvidu.Session;
@@ -98,6 +99,8 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
         void callCreateRemoteParticipantVideo(RemoteParticipant remoteParticipant);
 
         void callLeaveSession();
+
+        void onMessage(Message message);
     }
 
     public void setCustomWebSocketListener(CustomWebSocketListener customWebSocketListener) {
@@ -241,6 +244,20 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
                     break;
                 case JsonConstants.PARTICIPANT_LEFT:
                     participantLeftEvent(params);
+                    break;
+                case JsonConstants.SEND_MESSAGE:
+                    try {
+                        Message message = new Message();
+                        JSONObject jsonObjectParam = json.getJSONObject(JsonConstants.PARAMS);
+                        JSONObject jsonObjectData = new JSONObject(jsonObjectParam.getString("data"));
+                        message.setMessage(jsonObjectData.getString("message"));
+                        message.setNickname(jsonObjectData.getString("nickname"));
+                        message.setType(jsonObjectParam.getString("type"));
+                        message.setFrom(jsonObjectParam.getString("from"));
+                        customWebSocketListener.onMessage(message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     break;
                 default:
                     throw new JSONException("Unknown method: " + method);
