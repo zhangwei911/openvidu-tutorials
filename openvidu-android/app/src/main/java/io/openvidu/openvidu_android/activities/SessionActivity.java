@@ -72,6 +72,8 @@ public class SessionActivity extends AppCompatActivity {
     TextView main_participant;
     @BindView(R.id.peer_container)
     FrameLayout peer_container;
+    @BindView(R.id.send_message)
+    Button send_message;
 
     private String OPENVIDU_URL;
     private String OPENVIDU_SECRET;
@@ -110,6 +112,10 @@ public class SessionActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.CAMERA},
                     MY_PERMISSIONS_REQUEST_CAMERA);
         }
+    }
+
+    public void sendMessageClick(View view) {
+        webSocket.sendMessage("111", participant_name.getText().toString());
     }
 
     public void buttonPressed(View view) {
@@ -210,8 +216,10 @@ public class SessionActivity extends AppCompatActivity {
         startWebSocket();
     }
 
+    private CustomWebSocket webSocket;
+
     private void startWebSocket() {
-        CustomWebSocket webSocket = new CustomWebSocket(session, OPENVIDU_URL, this);
+        webSocket = new CustomWebSocket(session, OPENVIDU_URL, this);
         webSocket.setCustomWebSocketListener(new CustomWebSocket.CustomWebSocketListener() {
             @Override
             public void callViewToConnectedState() {
@@ -230,7 +238,8 @@ public class SessionActivity extends AppCompatActivity {
 
             @Override
             public void onMessage(Message message) {
-                Log.i(TAG,message.toString());
+                Log.i(TAG, message.toString());
+                Toast.makeText(SessionActivity.this, String.format("收到消息:&s 来自:%s",message.getMessage(),message.getNickname()), Toast.LENGTH_SHORT).show();
             }
         });
         webSocket.execute();

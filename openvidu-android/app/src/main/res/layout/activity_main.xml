@@ -77,6 +77,16 @@
             android:onClick="buttonPressed"
             android:text="@string/start_button" />
 
+        <Button
+            android:id="@+id/send_message"
+            style="@android:style/Widget.Material.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_marginStart="30dp"
+            android:onClick="sendMessageClick"
+            android:text="发送111" />
+
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="wrap_content"

@@ -194,6 +194,12 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
         this.ID_LEAVEROOM.set(this.sendJson(JsonConstants.LEAVEROOM_METHOD));
     }
 
+    public void sendMessage(String text, String nickname) {
+        Map<String, String> params = new HashMap<>();
+        params.put("message", "{\"to\":[],\"data\":\"{\\\"message\\\":\\\"" + text + "\\\",\\\"nickname\\\":\\\"" + nickname + "\\\"}\",\"type\":\"signal:chat\"}");
+        sendJson(JsonConstants.SENDMESSAGE_ROOM_METHOD, params);
+    }
+
     public void publishVideo(SessionDescription sessionDescription) {
         Map<String, String> publishVideoParams = new HashMap<>();
         publishVideoParams.put("audioActive", "true");
@@ -285,6 +291,7 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
             Log.i(TAG, "JSONException raised on sendJson", e);
             return -1;
         }
+        Log.d(TAG, jsonObject.toString());
         this.websocket.sendText(jsonObject.toString());
         RPC_ID.incrementAndGet();
         return id;
