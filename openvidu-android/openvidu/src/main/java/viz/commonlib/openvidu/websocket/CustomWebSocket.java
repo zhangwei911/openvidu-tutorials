@@ -272,7 +272,8 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
                         message.setNickname(jsonObjectData.getString("nickname"));
                         message.setType(jsonObjectParam.getString("type"));
                         message.setFrom(jsonObjectParam.getString("from"));
-                        if (customWebSocketListener != null) {
+                        boolean isLocal = session.getLocalParticipant().getParticipantName().equals(message.getNickname());
+                        if (customWebSocketListener != null && !isLocal) {
                             customWebSocketListener.onMessage(message);
                         }
                     } catch (Exception e) {
@@ -318,7 +319,7 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
             if (skipScreen) {
                 JSONObject metadataJson = new JSONObject(participantJson.getString("metadata"));
                 String clientData = metadataJson.getString("clientData");
-                if (clientData.endsWith("_SCREEN")) {
+                if (isScreen(clientData)) {
                     continue;
                 }
             }
@@ -381,6 +382,10 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
         mainHandler.post(myRunnable);
     }
 
+    private boolean isScreen(String clientData) {
+        return clientData.endsWith("_SCREEN");
+    }
+
     private RemoteParticipant newRemoteParticipantAux(JSONObject participantJson) throws JSONException {
         final String connectionId = participantJson.getString(JsonConstants.ID);
         String participantName = "";
@@ -390,9 +395,12 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
                 JSONObject json = new JSONObject(jsonStringified);
                 String clientData = json.getString("clientData");
                 if (clientData != null) {
+                    if (isScreen(clientData)) {
+                        return null;
+                    }
                     participantName = clientData;
                 }
-            } catch(JSONException e) {
+            } catch (JSONException e) {
                 participantName = jsonStringified;
             }
         }
