@@ -7,7 +7,7 @@ package viz.commonlib.openvidu;
  * @description:
  * @date 2020/6/23 10:42
  */
-public class Message {
+public class WebSocketMessage {
     private String message;
     private String nickname;
     private String type;

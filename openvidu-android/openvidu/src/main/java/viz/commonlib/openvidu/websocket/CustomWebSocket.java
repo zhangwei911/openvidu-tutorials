@@ -19,7 +19,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
-import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.RtpTransceiver;
 import org.webrtc.SessionDescription;
@@ -48,7 +47,7 @@ import javax.net.ssl.X509TrustManager;
 
 import viz.commonlib.openvidu.JsonConstants;
 import viz.commonlib.openvidu.LocalParticipant;
-import viz.commonlib.openvidu.Message;
+import viz.commonlib.openvidu.WebSocketMessage;
 import viz.commonlib.openvidu.Participant;
 import viz.commonlib.openvidu.RemoteParticipant;
 import viz.commonlib.openvidu.Session;
@@ -110,7 +109,7 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
 
         void callLeaveSession();
 
-        void onMessage(Message message);
+        void onMessage(WebSocketMessage message);
     }
 
     public void setCustomWebSocketListener(CustomWebSocketListener customWebSocketListener) {
@@ -266,7 +265,7 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
                     break;
                 case JsonConstants.SEND_MESSAGE:
                     try {
-                        Message message = new Message();
+                        WebSocketMessage message = new WebSocketMessage();
                         JSONObject jsonObjectParam = json.getJSONObject(JsonConstants.PARAMS);
                         JSONObject jsonObjectData = new JSONObject(jsonObjectParam.getString("data"));
                         message.setMessage(jsonObjectData.getString("message"));

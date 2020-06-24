@@ -1,7 +1,7 @@
 def versionPropsFile = file('maven-info.properties')
 def Properties mavenInfoProps
 String publishGroupId = 'viz.commonlib'
-String publishArtifactId = 'openvidu'
+String publishArtifactId = 'openvidu-local'
 String publishVersion = '1.0.0'
 if (versionPropsFile.canRead()) {
     mavenInfoProps = new Properties()
