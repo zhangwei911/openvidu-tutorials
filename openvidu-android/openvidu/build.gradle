@@ -1,7 +1,8 @@
 plugins {
     id 'com.android.library'
 }
-apply from:'maven.gradle'
+//apply from:'maven.gradle'
+apply from:'bintray.gradle'
 
 android {
     compileSdkVersion 29
@@ -35,5 +36,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     api 'com.neovisionaries:nv-websocket-client:2.9'
-    api 'org.webrtc:google-webrtc:1.0.28513'
+    api "org.webrtc:google-webrtc:1.0.30039"
+}
+
+packageTask()
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }
