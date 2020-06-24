@@ -25,7 +25,7 @@ import { OpenVidu } from 'openvidu-browser';
 import { RTCView } from './node_modules/openvidu-browser/node_modules/react-native-webrtc';
 import axios from 'axios';
 
-const OPENVIDU_SERVER_URL = 'https://demos.openvidu.io:4443';
+const OPENVIDU_SERVER_URL = 'https://demos.openvidu.io';
 const OPENVIDU_SERVER_SECRET = 'MY_SECRET';
 
 
@@ -43,7 +43,8 @@ export default class App extends Component<Props> {
             role: 'PUBLISHER',
             mirror: true,
             videoSource: undefined,
-            camera: true,
+            video: true,
+            audio: true
         };
     }
 
@@ -63,7 +64,7 @@ export default class App extends Component<Props> {
                 buttonPositive: 'OK',
             });
             const audio = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, {
-                title: 'Aduio Permission',
+                title: 'Audio Permission',
                 message: 'OpenVidu needs access to your microphone',
                 buttonNeutral: 'Ask Me Later',
                 buttonNegative: 'Cancel',
@@ -254,7 +255,7 @@ export default class App extends Component<Props> {
                 frameRate: 30,
                 insertMode: 'APPEND',
             }
-            
+
             let publisher = this.OV.initPublisher(undefined, properties);
 
             this.state.session.unpublish(this.state.mainStreamManager);
@@ -269,9 +270,14 @@ export default class App extends Component<Props> {
         */
     }
 
+    muteUnmuteMic() {
+        this.state.mainStreamManager.publishAudio(!this.state.audio);
+        this.setState({ audio: !this.state.audio });
+    }
+
     muteUnmuteCamera() {
-        this.state.mainStreamManager.publishVideo(!this.state.camera);
-        this.setState({ camera: !this.state.camera });
+        this.state.mainStreamManager.publishVideo(!this.state.video);
+        this.setState({ video: !this.state.video });
     }
 
     render() {
@@ -302,12 +308,21 @@ export default class App extends Component<Props> {
                                     title="Toggle Camera"
                                     color="#841584"
                                 />
+
+                            </View>
+                            <View style={styles.button}>
+                                <Button
+                                    onLongPress={() => this.muteUnmuteMic()}
+                                    onPress={() => this.muteUnmuteMic()}
+                                    title={this.state.audio ? 'Mute Microphone' : 'Unmute Microphone'}
+                                    color="#3383FF"
+                                />
                             </View>
                             <View style={styles.button}>
                                 <Button
                                     onLongPress={() => this.muteUnmuteCamera()}
                                     onPress={() => this.muteUnmuteCamera()}
-                                    title={this.state.camera ? 'Mute Camera' : 'Unmute Camera'}
+                                    title={this.state.video ? 'Mute Camera' : 'Unmute Camera'}
                                     color="#00cbff"
                                 />
                             </View>
@@ -328,7 +343,7 @@ export default class App extends Component<Props> {
                             justifyContent: 'center',
                             alignItems: 'center',
                             padding: 20}}>
-                                
+
                             <Image style={styles.img} source={require('./resources/images/openvidu_grey_bg_transp_cropped.png')} />
                         </View>
                         <View style={{ justifyContent: 'center', alignItems: 'center'}}>
@@ -494,6 +509,6 @@ const styles = StyleSheet.create({
     img: {
         flex: 1,
         width: 400,
-        height: 200, 
+        height: 200,
     }
 });

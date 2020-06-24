@@ -1,16 +1,17 @@
 {
   "name": "openvidu_react_native",
-  "version": "2.12.0",
+  "version": "2.13.0",
   "private": true,
   "scripts": {
     "start": "react-native start",
+    "android": "react-native run-android",
     "test": "jest"
   },
   "dependencies": {
     "axios": "0.19.2",
-    "openvidu-browser": "2.12.0",
-    "react": "16.13.0",
-    "react-native": "0.61.5"
+    "openvidu-browser": "2.14.0",
+    "react": "16.13.1",
+    "react-native": "0.62.2"
   },
   "devDependencies": {
     "@babel/core": "7.8.6",
