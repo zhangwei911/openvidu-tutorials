@@ -203,6 +203,8 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
     }
 
     public void leaveRoom() {
+        LocalParticipant localParticipant = session.getLocalParticipant();
+        localParticipant.leaveRoom();
         this.ID_LEAVEROOM.set(this.sendJson(JsonConstants.LEAVEROOM_METHOD));
     }
 

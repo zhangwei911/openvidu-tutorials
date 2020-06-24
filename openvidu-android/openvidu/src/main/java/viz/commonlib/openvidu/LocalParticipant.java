@@ -1,7 +1,18 @@
 package viz.commonlib.openvidu;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.IdRes;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 import org.webrtc.AudioSource;
 import org.webrtc.Camera1Enumerator;
@@ -29,6 +40,11 @@ public class LocalParticipant extends Participant {
 
     private Collection<IceCandidate> localIceCandidates;
     private SessionDescription localSessionDescription;
+    private TextView participantNameText;
+    private View view;
+    @SuppressLint("ResourceType")
+    @IdRes
+    int localViewId = 10001;
 
     public LocalParticipant(String participantName, Session session, Context context, SurfaceViewRenderer localVideoView) {
         super(participantName, session);
@@ -37,6 +53,87 @@ public class LocalParticipant extends Participant {
         this.participantName = participantName;
         this.localIceCandidates = new ArrayList<>();
         session.setLocalParticipant(this);
+    }
+
+    public LocalParticipant(String participantName, Session session, Activity activity, ConstraintLayout views_contains) {
+        super(participantName, session);
+        this.context = activity;
+        createLocalVideoView(activity, views_contains);
+        this.participantName = participantName;
+        this.localIceCandidates = new ArrayList<>();
+        session.setLocalParticipant(this);
+    }
+
+    public View getView() {
+        return view;
+    }
+
+    public void setView(View view) {
+        this.view = view;
+    }
+
+    public TextView getParticipantNameText() {
+        return participantNameText;
+    }
+
+    public void setParticipantNameText(TextView participantNameText) {
+        this.participantNameText = participantNameText;
+    }
+
+    public SurfaceViewRenderer getLocalVideoView() {
+        return localVideoView;
+    }
+
+    public void setLocalVideoView(SurfaceViewRenderer localVideoView) {
+        this.localVideoView = localVideoView;
+    }
+
+    public void leaveRoom() {
+        localVideoView.clearImage();
+        localVideoView.release();
+    }
+
+    private void createLocalVideoView(Activity activity, ConstraintLayout views_container) {
+        activity.runOnUiThread(() -> {
+            Handler mainHandler = new Handler(activity.getMainLooper());
+            Runnable myRunnable = () -> {
+                View rowView = activity.getLayoutInflater().inflate(R.layout.peer_video, null);
+                ConstraintSet set = new ConstraintSet();
+                set.clone(views_container);
+                int rowId = localViewId;
+                rowView.setId(rowId);
+                views_container.addView(rowView, 0);
+                DisplayMetrics dm = activity.getResources().getDisplayMetrics();
+                set.constrainWidth(rowId, dm.widthPixels);
+                set.constrainHeight(rowId, dm.heightPixels);
+                set.connect(
+                        rowId, ConstraintSet.TOP, views_container.getId(), ConstraintSet.TOP
+                );
+                set.connect(
+                        rowId, ConstraintSet.END, views_container.getId(), ConstraintSet.END
+                );
+                set.connect(
+                        rowId, ConstraintSet.START, views_container.getId(), ConstraintSet.START
+                );
+                set.connect(
+                        rowId, ConstraintSet.BOTTOM, views_container.getId(), ConstraintSet.BOTTOM
+                );
+                set.applyTo(views_container);
+                SurfaceViewRenderer videoView = (SurfaceViewRenderer) ((ViewGroup) rowView).getChildAt(0);
+                this.localVideoView = videoView;
+                EglBase rootEglBase = EglBase.create();
+                videoView.init(rootEglBase.getEglBaseContext(), null);
+                videoView.setMirror(true);
+                videoView.setEnableHardwareScaler(true);
+                videoView.setZOrderMediaOverlay(true);
+                View textView = ((ViewGroup) rowView).getChildAt(1);
+                setParticipantNameText((TextView) textView);
+                setView(rowView);
+                getParticipantNameText().setText(getParticipantName());
+                getParticipantNameText().setPadding(20, 3, 20, 3);
+            };
+            mainHandler.post(myRunnable);
+        });
     }
 
     public void startCamera() {

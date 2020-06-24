@@ -74,7 +74,7 @@ public class Session{
 
     public PeerConnection createLocalPeerConnection() {
         final List<PeerConnection.IceServer> iceServers = new ArrayList<>();
-        PeerConnection.IceServer iceServer = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer();
+        PeerConnection.IceServer iceServer = PeerConnection.IceServer.builder("stun:101.132.117.103:3478").createIceServer();
         iceServers.add(iceServer);
 
         PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(iceServers);
@@ -99,7 +99,7 @@ public class Session{
 
     public void createRemotePeerConnection(final String connectionId) {
         final List<PeerConnection.IceServer> iceServers = new ArrayList<>();
-        PeerConnection.IceServer iceServer = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer();
+        PeerConnection.IceServer iceServer = PeerConnection.IceServer.builder("stun:101.132.117.103:3478").createIceServer();
         iceServers.add(iceServer);
 
         PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(iceServers);
