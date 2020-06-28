@@ -210,7 +210,7 @@ public class CustomWebSocket extends AsyncTask<Void, Void, Void> implements WebS
 
     public void sendMessage(String text, String nickname) {
         Map<String, String> params = new HashMap<>();
-        params.put("message", "{\"to\":[],\"data\":\"{\\\"message\\\":\\\"" + text + "\\\",\\\"nickname\\\":\\\"" + nickname + "\\\"}\",\"type\":\"signal:chat\"}");
+        params.put("message", "{\"to\":[],\"data\":\"{\\\"connectionId\\\":\\\""+session.getLocalParticipant().getConnectionId()+"\\\",\\\"message\\\":\\\"" + text + "\\\",\\\"nickname\\\":\\\"" + nickname + "\\\"}\",\"type\":\"signal:chat\"}");
         sendJson(JsonConstants.SENDMESSAGE_ROOM_METHOD, params);
     }
 

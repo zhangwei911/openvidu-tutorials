@@ -87,6 +87,15 @@
             android:onClick="sendMessageClick"
             android:text="发送111" />
 
+        <Button
+            android:id="@+id/exchange_server"
+            style="@android:style/Widget.Material.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_height="wrap_content"
+            android:onClick="exchangeServerClick"
+            android:text="切换服务器" />
+
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="wrap_content"

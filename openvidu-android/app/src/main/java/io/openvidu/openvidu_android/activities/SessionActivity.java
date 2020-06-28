@@ -371,4 +371,14 @@ public class SessionActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    public void exchangeServerClick(View view) {
+        if(openvidu_url.getText().toString().equals("https://demos.openvidu.io:443")){
+            openvidu_url.setText("https://dbhappy.cn:4443");
+            openvidu_secret.setText("hsx22096");
+        }else{
+            openvidu_url.setText("https://demos.openvidu.io:443");
+            openvidu_secret.setText("MY_SECRET");
+        }
+        session_name.setText("2222");
+    }
 }
