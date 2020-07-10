@@ -242,7 +242,7 @@ public class SessionActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(SessionActivity.this, String.format("收到消息:%s 来自:%s",message.getMessage(),message.getNickname()), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SessionActivity.this, String.format("收到消息:%s 来自:%s", message.getMessage(), message.getNickname()), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -372,10 +372,10 @@ public class SessionActivity extends AppCompatActivity {
     }
 
     public void exchangeServerClick(View view) {
-        if(openvidu_url.getText().toString().equals("https://demos.openvidu.io:443")){
+        if (openvidu_url.getText().toString().equals("https://demos.openvidu.io:443")) {
             openvidu_url.setText("https://dbhappy.cn:4443");
             openvidu_secret.setText("hsx22096");
-        }else{
+        } else {
             openvidu_url.setText("https://demos.openvidu.io:443");
             openvidu_secret.setText("MY_SECRET");
         }
